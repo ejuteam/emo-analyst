@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.emoOpner.mapper.WeiBoMapper">
+    <resultMap id="WeiBoInfoResultMap" type="com.emoOpner.po.WeiBoInfo">
+        <result column="id" property="id"></result>
+        <result column="reposts_count" property="repostsCount"></result>
+        <result column="comments_count" property="commentsCount"></result>
+        <result column="attiudes_count" property="attiudesCount"></result>
+        <result column="wb_id" property="wbId"></result>
+        <result column="wb_mid" property="wbMid"></result>
+        <result column="text" property="text"></result>
+        <result column="source" property="source"></result>
+        <result column="pic_ids" property="picIds"></result>
+        <result column="user_id" property="userId"></result>
+        <result column="original_pic" property="originalPic"></result>
+        <result column="thumbnall_pic" property="thumbnallPic"></result>
+        <result column="created_time" property="createdTime"></result>
+        <result column="wb_id_str" property="wbIdStr"></result>
+        <result column="bmiddle_pic" property="bmiddlePic"></result>
+        <result column="favorited" property="favorited"></result>
+        <result column="truncated" property="truncated"></result>
+        <result column="retweeted_status" property="retweetedStatus"></result>
+    </resultMap>
+
+    <select id="queryWeiBoList" parameterType="com.emoOpner.request.WeiBoInfoRequest" resultMap="WeiBoInfoResultMap">
+        select
+        id,
+        wb_id,
+        wb_mid,
+        wb_id_str,
+        created_time,
+        text,
+        source,
+        favorited,
+        truncated,
+        thumbnall_pic,
+        bmiddle_pic,
+        original_pic,
+        user_id,
+        retweeted_status,
+        reposts_count,
+        comments_count,
+        attiudes_count,
+        pic_ids
+        from t_weibo
+        <where>
+            <if test=" wbId != null and wbId != ''">
+                and wb_id = #{wbId}
+            </if>
+            <if test=" wbMid != null and wbMid != ''">
+                and wb_mid = #{wbMid}
+            </if>
+            <if test=" wbIdStr != null and wbIdStr != ''">
+                and wb_id_str = #{wbIdStr}
+            </if>
+            <if test=" id != null  and id != ''">
+                and id = #{id}
+            </if>
+        </where>
+    </select>
+</mapper>
