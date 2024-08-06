@@ -26,8 +26,8 @@ public class WeiBoController {
     }
 
     @ApiOperation(notes = "queryAuthUrl", value = QUERY + "获取授权地址")
-    @RequestMapping(value = "/queryAuthUrl", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
-    public AResponse getAuthUrl(){
+    @RequestMapping(value = "/queryAuthUrl", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public AResponse getAuthUrl(@RequestBody AccessTokenRequest accessToken){
         return weiBoService.getAuthUrl();
     }
 
@@ -41,5 +41,11 @@ public class WeiBoController {
     @RequestMapping(value = "/getWeiBos", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public AResponse getWeiBos(@RequestBody AccessTokenRequest accessToken){
         return weiBoService.getWeiBos(accessToken);
+    }
+
+    @ApiOperation(notes = "getWeiBosByUser", value = QUERY + "获取当前登录用户及其所关注（授权）用户的最新微博")
+    @RequestMapping(value = "/getWeiBosByUser", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public AResponse getWeiBosByUser(@RequestBody AccessTokenRequest accessToken){
+        return weiBoService.getWeiBosByUser(accessToken);
     }
 }

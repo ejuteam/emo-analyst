@@ -9,18 +9,20 @@ import com.emoOpner.request.WeiBoInfoRequest;
 import com.emoOpner.response.AResponse;
 import com.emoOpner.service.WeiBoService;
 import com.emoOpner.utils.AResultUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static com.emoOpner.config.WeiBoApiConfig.APP_KEY;
-import static com.emoOpner.config.WeiBoApiConfig.USER_TIMELINE;
+import static com.emoOpner.config.WeiBoApiConfig.*;
 
 @Service
 public class WeiBoServiceImpl implements WeiBoService {
@@ -63,9 +65,39 @@ public class WeiBoServiceImpl implements WeiBoService {
         Map<String,String> param = new HashMap<>();
         param.put("client_id",APP_KEY);
         param.put("access_token",accessToken.getAccessToken());
+        param.put("uid","6496346043");
+        //param.put("screen_name","zhufit");
         APIClient apiClient = new APIClient();
         String res = apiClient.getWeiBos(USER_TIMELINE,param);
         System.out.println(res);
+        return null;
+    }
+
+    @Override
+    public AResponse getWeiBosByUser(AccessTokenRequest accessToken) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("client_id",APP_KEY);
+            param.put("access_token",accessToken.getAccessToken());
+            param.put("uid","");//某人的微博ID
+            APIClient apiClient = new APIClient();
+            String res = apiClient.getWeiBos(HOME_TIMELINE,param);
+
+            JSONObject jsonObject = new JSONObject(res);
+            ObjectMapper objectMapper = new ObjectMapper();
+            //提取微博正文
+            List<Map<String, Object>> list = objectMapper.readValue(jsonObject.get("statuses").toString(), new TypeReference<List<Map<String, Object>>>(){})
+                    .stream()
+                    //过滤mblogtype为0的微博
+                    .filter(map -> !(map.containsKey("mblogtype") && map.get("mblogtype") instanceof Integer && (Integer) map.get("mblogtype") == 0))
+                    .collect(Collectors.toList());
+            list.stream().forEach(item -> {
+                //输出正文
+                System.out.println(item.get("text"));
+            });
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return null;
     }
 }

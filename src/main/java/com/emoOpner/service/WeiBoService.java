@@ -17,4 +17,6 @@ public interface WeiBoService {
     public AResponse getAccessToken(AccessTokenRequest accessToken);
 
     public AResponse getWeiBos(AccessTokenRequest accessToken);
+
+    public AResponse getWeiBosByUser(AccessTokenRequest accessToken);
 }
