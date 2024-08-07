@@ -58,4 +58,44 @@
             </if>
         </where>
     </select>
+
+    <resultMap id="WeiBoContentResultMap" type="com.emoOpner.po.WeiBoContent">
+        <result column="wb_id" property="weiBoId"></result>
+        <result column="user_id" property="userId"></result>
+        <result column="text" property="text"></result>
+        <result column="create_time" property="createTime"></result>
+    </resultMap>
+
+    <select id="insertWeiBoContent" parameterType="com.emoOpner.po.WeiBoContent" >
+        INSERT INTO t_weibo_content
+        (wb_id, user_id, text, create_time)
+        VALUES
+        (#{weiBoId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE})
+    </select>
+
+    <select id="queryWeiBoContent" parameterType="com.emoOpner.request.WeiBoContentRequest" resultMap="WeiBoContentResultMap">
+        select wb_id, user_id, text, create_time from t_weibo_content
+        <where>
+            <if test="weiBoId != null and weiBoId != ''">
+                and wb_id = #{weiBoId}
+            </if>
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+            <if test="text != null and text != ''">
+                and INSTR(#{text}, text)>0
+            </if>
+            <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+                and (create_time between #{startTime} and #{endTime})
+            </if>
+        </where>
+    </select>
+
+    <select id="delWeiBoContents">
+        DELETE FROM t_weibo_content
+    </select>
+
+    <select id="delWeiBoContentById" parameterType="com.emoOpner.request.WeiBoContentRequest">
+        DELETE FROM t_weibo_content WHERE wb_id = #{weiBoId}
+    </select>
 </mapper>

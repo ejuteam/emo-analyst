@@ -3,8 +3,10 @@ package com.emoOpner.serviceImpl;
 import com.emoOpner.mapper.WeiBoMapper;
 import com.emoOpner.po.APIClient;
 import com.emoOpner.po.JsonDict;
+import com.emoOpner.po.WeiBoContent;
 import com.emoOpner.po.WeiBoInfo;
 import com.emoOpner.request.AccessTokenRequest;
+import com.emoOpner.request.WeiBoContentRequest;
 import com.emoOpner.request.WeiBoInfoRequest;
 import com.emoOpner.response.AResponse;
 import com.emoOpner.service.WeiBoService;
@@ -17,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,6 +38,17 @@ public class WeiBoServiceImpl implements WeiBoService {
         try{
             List<WeiBoInfo> weiBoInfos = weiBoMapper.queryWeiBoList(request);
             return AResultUtil.success(weiBoInfos,"查询成功");
+        }catch (Exception e){
+            e.printStackTrace();
+            return AResultUtil.error("查询失败!");
+        }
+    }
+
+    @Override
+    public AResponse<WeiBoContent> queryWeiBoContents(WeiBoContentRequest weiBoInfoRequest) {
+        try{
+            List<WeiBoContent> weiBoContents =weiBoMapper.queryWeiBoContent(weiBoInfoRequest);
+            return AResultUtil.success(weiBoContents,"查询成功!");
         }catch (Exception e){
             e.printStackTrace();
             return AResultUtil.error("查询失败!");
@@ -79,7 +93,7 @@ public class WeiBoServiceImpl implements WeiBoService {
             Map<String,String> param = new HashMap<>();
             param.put("client_id",APP_KEY);
             param.put("access_token",accessToken.getAccessToken());
-            param.put("uid","");//某人的微博ID
+            param.put("uid","6496346043");//某人的微博ID
             APIClient apiClient = new APIClient();
             String res = apiClient.getWeiBos(HOME_TIMELINE,param);
 
@@ -91,13 +105,41 @@ public class WeiBoServiceImpl implements WeiBoService {
                     //过滤mblogtype为0的微博
                     .filter(map -> !(map.containsKey("mblogtype") && map.get("mblogtype") instanceof Integer && (Integer) map.get("mblogtype") == 0))
                     .collect(Collectors.toList());
+            WeiBoContent weiBoContent = new WeiBoContent();
             list.stream().forEach(item -> {
-                //输出正文
-                System.out.println(item.get("text"));
+                //入库
+                weiBoContent.setText(item.get("text").toString());
+                weiBoContent.setUserId("6496346043");
+                weiBoContent.setWeiBoId(item.get("id").toString());
+                weiBoContent.setCreateTime(new Date());
+                weiBoMapper.insertWeiBoContent(weiBoContent);
             });
+            return AResultUtil.success("获取成功!");
         }catch (Exception e){
             e.printStackTrace();
+            return AResultUtil.error("获取失败!");
         }
-        return null;
+    }
+
+    @Override
+    public AResponse delWeiBoContents() {
+        try {
+            weiBoMapper.delWeiBoContents();
+            return AResultUtil.success("全部删除成功!");
+        }catch (Exception e){
+            e.printStackTrace();
+            return AResultUtil.error("全部删除成功!");
+        }
+    }
+
+    @Override
+    public AResponse delWeiBoContentById(WeiBoContentRequest weiBoContentRequest) {
+        try {
+            weiBoMapper.delWeiBoContentById(weiBoContentRequest);
+            return AResultUtil.success(String.format("{0}删除成功",weiBoContentRequest.getWeiBoId()));
+        }catch (Exception e){
+            e.printStackTrace();
+            return AResultUtil.error("删除失败");
+        }
     }
 }

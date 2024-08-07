@@ -1,6 +1,7 @@
 package com.emoOpner.controller;
 
 import com.emoOpner.request.AccessTokenRequest;
+import com.emoOpner.request.WeiBoContentRequest;
 import com.emoOpner.request.WeiBoInfoRequest;
 import com.emoOpner.response.AResponse;
 import com.emoOpner.service.WeiBoService;
@@ -9,6 +10,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import static com.emoOpner.constant.SwaggerDocumentConstant.DELETE;
 import static com.emoOpner.constant.SwaggerDocumentConstant.QUERY;
 
 @RestController
@@ -23,6 +25,24 @@ public class WeiBoController {
     @RequestMapping(value = "/queryWeiBoInfo", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
     public AResponse queryWeiBoInfo(@RequestBody WeiBoInfoRequest request) {
         return weiBoService.queryWeiBoInfo(request);
+    }
+
+    @ApiOperation(notes = "queryWeiBoContents", value = QUERY + "查询微博正文列表")
+    @RequestMapping(value = "/queryWeiBoContents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public AResponse queryWeiBoContents(@RequestBody WeiBoContentRequest request) {
+        return weiBoService.queryWeiBoContents(request);
+    }
+
+    @ApiOperation(notes = "delWeiBoContents", value = DELETE + "全部删除微博正文")
+    @RequestMapping(value = "/delWeiBoContents", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public AResponse delWeiBoContents(@RequestBody WeiBoContentRequest request) {
+        return weiBoService.delWeiBoContents();
+    }
+
+    @ApiOperation(notes = "delWeiBoContentById", value = DELETE + "删除某条微博正文")
+    @RequestMapping(value = "/delWeiBoContentById", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+    public AResponse delWeiBoContentById(@RequestBody WeiBoContentRequest request) {
+        return weiBoService.delWeiBoContentById(request);
     }
 
     @ApiOperation(notes = "queryAuthUrl", value = QUERY + "获取授权地址")
