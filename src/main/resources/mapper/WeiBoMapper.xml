@@ -64,17 +64,23 @@
         <result column="user_id" property="userId"></result>
         <result column="text" property="text"></result>
         <result column="create_time" property="createTime"></result>
+        <result column="post_time" property="postTime"></result>
+        <result column="tokenize_text" property="tokenizeText"></result>
     </resultMap>
 
     <select id="insertWeiBoContent" parameterType="com.emoOpner.po.WeiBoContent" >
         INSERT INTO t_weibo_content
-        (wb_id, user_id, text, create_time)
+        (wb_id, user_id, text, create_time, post_time)
         VALUES
-        (#{weiBoId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE})
+        (#{weiBoId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, #{postTime,jdbcType=VARCHAR})
     </select>
 
+    <update id="updateWeiBoContent" parameterType="com.emoOpner.po.WeiBoContent" >
+        update t_weibo_content set tokenize_text = #{tokenizeText} where wb_id = #{weiBoId}
+    </update>
+
     <select id="queryWeiBoContent" parameterType="com.emoOpner.request.WeiBoContentRequest" resultMap="WeiBoContentResultMap">
-        select wb_id, user_id, text, create_time from t_weibo_content
+        select wb_id, user_id, text, create_time, tokenize_text from t_weibo_content
         <where>
             <if test="weiBoId != null and weiBoId != ''">
                 and wb_id = #{weiBoId}

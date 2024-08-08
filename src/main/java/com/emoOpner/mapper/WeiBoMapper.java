@@ -16,6 +16,8 @@ public interface WeiBoMapper {
 
     void insertWeiBoContent(WeiBoContent weiBoContent);
 
+    void updateWeiBoContent(WeiBoContent weiBoContent);
+
     List<WeiBoContent> queryWeiBoContent(WeiBoContentRequest request);
 
     void delWeiBoContents();

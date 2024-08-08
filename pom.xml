@@ -132,6 +132,28 @@
             <artifactId>pagehelper</artifactId>
             <version>5.2.0</version>
         </dependency>
+        <!-- 分词 -->
+        <!--<dependency>
+            <groupId>com.hankcs</groupId>
+            <artifactId>hanlp</artifactId>
+            <version>portable-1.7.8</version>
+        </dependency>-->
+        <dependency>
+            <groupId>com.huaban</groupId>
+            <artifactId>jieba-analysis</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+        <!--<dependency>
+            <groupId>io.github.yizhiru</groupId>
+            <artifactId>thulac4j</artifactId>
+            <version>3.1.2</version>
+        </dependency>-->
+        <!-- Weka训练模型 -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.5</version>
+        </dependency>
     </dependencies>
 
     <build>

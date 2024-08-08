@@ -19,10 +19,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.emoOpner.config.WeiBoApiConfig.*;
@@ -99,6 +98,8 @@ public class WeiBoServiceImpl implements WeiBoService {
 
             JSONObject jsonObject = new JSONObject(res);
             ObjectMapper objectMapper = new ObjectMapper();
+
+            //System.out.println(jsonObject.get("statuses").toString());
             //提取微博正文
             List<Map<String, Object>> list = objectMapper.readValue(jsonObject.get("statuses").toString(), new TypeReference<List<Map<String, Object>>>(){})
                     .stream()
@@ -107,10 +108,27 @@ public class WeiBoServiceImpl implements WeiBoService {
                     .collect(Collectors.toList());
             WeiBoContent weiBoContent = new WeiBoContent();
             list.stream().forEach(item -> {
+                //处理发布时间
+                String postTimeStr = item.get("created_at").toString();
+                try {
+                    // 解析原始日期字符串为 Date 对象
+                    Date date = null;
+                    // 定义输入、输出日期格式
+                    SimpleDateFormat inputFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH);
+                    SimpleDateFormat outputFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+                    date = inputFormat.parse(postTimeStr);
+                    // 设置时区为东八区（可选，视需求而定）
+                    outputFormat.setTimeZone(TimeZone.getTimeZone("GMT+8"));
+                    // 格式化 Date 对象为目标字符串格式
+                    postTimeStr = outputFormat.format(date);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
                 //入库
                 weiBoContent.setText(item.get("text").toString());
                 weiBoContent.setUserId("6496346043");
                 weiBoContent.setWeiBoId(item.get("id").toString());
+                weiBoContent.setPostTime(postTimeStr);
                 weiBoContent.setCreateTime(new Date());
                 weiBoMapper.insertWeiBoContent(weiBoContent);
             });
@@ -136,7 +154,7 @@ public class WeiBoServiceImpl implements WeiBoService {
     public AResponse delWeiBoContentById(WeiBoContentRequest weiBoContentRequest) {
         try {
             weiBoMapper.delWeiBoContentById(weiBoContentRequest);
-            return AResultUtil.success(String.format("{0}删除成功",weiBoContentRequest.getWeiBoId()));
+            return AResultUtil.success(String.format("删除成功",weiBoContentRequest.getWeiBoId()));
         }catch (Exception e){
             e.printStackTrace();
             return AResultUtil.error("删除失败");
