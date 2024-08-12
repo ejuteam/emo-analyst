@@ -21,4 +21,7 @@ public class WeiBoContentRequest {
 
     @ApiModelProperty(notes = "结束时间")
     private Date endTime;
+
+    @ApiModelProperty(notes = "处理状态 0未分词 1已分词")
+    private String status;
 }

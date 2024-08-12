@@ -8,4 +8,5 @@ import org.springframework.stereotype.Component;
 @Component
 public interface WordAnalystMapper {
     int queryStopWord(StopWord stopWord);
+    void doStopWord();
 }

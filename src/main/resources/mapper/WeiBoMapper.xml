@@ -66,21 +66,22 @@
         <result column="create_time" property="createTime"></result>
         <result column="post_time" property="postTime"></result>
         <result column="tokenize_text" property="tokenizeText"></result>
+        <result column="status" property="status"></result>
     </resultMap>
 
     <select id="insertWeiBoContent" parameterType="com.emoOpner.po.WeiBoContent" >
         INSERT INTO t_weibo_content
-        (wb_id, user_id, text, create_time, post_time)
+        (wb_id, user_id, text, create_time, post_time, status)
         VALUES
-        (#{weiBoId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, #{postTime,jdbcType=VARCHAR})
+        (#{weiBoId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{text,jdbcType=VARCHAR}, #{createTime,jdbcType=DATE}, #{postTime,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR})
     </select>
 
     <update id="updateWeiBoContent" parameterType="com.emoOpner.po.WeiBoContent" >
-        update t_weibo_content set tokenize_text = #{tokenizeText} where wb_id = #{weiBoId}
+        update t_weibo_content set tokenize_text = #{tokenizeText} where wb_id = #{weiBoId} and status = 0
     </update>
 
     <select id="queryWeiBoContent" parameterType="com.emoOpner.request.WeiBoContentRequest" resultMap="WeiBoContentResultMap">
-        select wb_id, user_id, text, create_time, tokenize_text from t_weibo_content
+        select wb_id, user_id, text, create_time, tokenize_text,status,post_time from t_weibo_content
         <where>
             <if test="weiBoId != null and weiBoId != ''">
                 and wb_id = #{weiBoId}
@@ -90,6 +91,9 @@
             </if>
             <if test="text != null and text != ''">
                 and INSTR(#{text}, text)>0
+            </if>
+            <if test="status != null and status != ''">
+                and INSTR(#{status}, status)>0
             </if>
             <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
                 and (create_time between #{startTime} and #{endTime})

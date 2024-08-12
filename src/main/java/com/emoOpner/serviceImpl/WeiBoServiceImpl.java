@@ -130,6 +130,7 @@ public class WeiBoServiceImpl implements WeiBoService {
                 weiBoContent.setWeiBoId(item.get("id").toString());
                 weiBoContent.setPostTime(postTimeStr);
                 weiBoContent.setCreateTime(new Date());
+                weiBoContent.setStatus("0");
                 weiBoMapper.insertWeiBoContent(weiBoContent);
             });
             return AResultUtil.success("获取成功!");

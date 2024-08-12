@@ -24,4 +24,7 @@ public class WeiBoContent {
 
     @ApiModelProperty(notes = "正文分词")
     private String tokenizeText;
+
+    @ApiModelProperty(notes = "处理状态 0未分词 1已分词")
+    private String status;
 }

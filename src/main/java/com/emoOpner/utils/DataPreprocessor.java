@@ -1,4 +1,4 @@
-package com.emoOpner.test;
+package com.emoOpner.utils;
 
 import com.huaban.analysis.jieba.JiebaSegmenter;
 
@@ -17,7 +17,7 @@ public class DataPreprocessor {
                 .stream()
                 .map(segItem -> segItem.word)
                 .collect(Collectors.toList());
-        String cleanText = String.join(" ", termList);
+        String cleanText = String.join(",", termList);
         /*// 使用THULAC进行中文分词
         Segmenter segmenter = new Segmenter();
         List<String> termList = segmenter.segment(text);

@@ -1,11 +1,12 @@
 package com.emoOpner.serviceImpl;
 
 import com.emoOpner.mapper.WeiBoMapper;
+import com.emoOpner.mapper.WordAnalystMapper;
 import com.emoOpner.po.WeiBoContent;
 import com.emoOpner.request.WeiBoContentRequest;
 import com.emoOpner.response.AResponse;
 import com.emoOpner.service.WordAnalystService;
-import com.emoOpner.test.DataPreprocessor;
+import com.emoOpner.utils.DataPreprocessor;
 import com.emoOpner.utils.AResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,7 +18,8 @@ public class WordAnalystServiceImpl implements WordAnalystService {
 
     @Autowired
     WeiBoMapper weiBoMapper;
-
+    @Autowired
+    WordAnalystMapper wordAnalystMapper;
     @Override
     public AResponse doTokenization() {
         try{
@@ -29,6 +31,7 @@ public class WordAnalystServiceImpl implements WordAnalystService {
                 weiBoContent.setTokenizeText(dataPreprocessor.preprocess(item.getText()));
                 weiBoMapper.updateWeiBoContent(weiBoContent);
             });
+            wordAnalystMapper.doStopWord();
             return AResultUtil.success("分词成功");
         }catch (Exception e){
             e.printStackTrace();

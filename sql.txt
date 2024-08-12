@@ -1,0 +1,93 @@
+-- `emo-analyst`.t_stopword_v2 definition
+
+CREATE TABLE `t_stopword_v2` (
+  `word` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- `emo-analyst`.t_weibo definition
+
+CREATE TABLE `t_weibo` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `wb_id` int DEFAULT NULL COMMENT '微博ID',
+  `wb_mid` int DEFAULT NULL COMMENT '微博MID',
+  `wb_id_str` varchar(20) DEFAULT NULL COMMENT '字符串型微博ID',
+  `created_time` varchar(20) DEFAULT NULL COMMENT '微博创建时间',
+  `text` text COMMENT '微博消息内容',
+  `source` varchar(20) DEFAULT NULL COMMENT '微博来源',
+  `favorited` int DEFAULT NULL COMMENT '是否已收藏 1是 0否',
+  `truncated` int DEFAULT NULL COMMENT '是否被截断 1是 0否',
+  `thumbnall_pic` varchar(60) DEFAULT NULL COMMENT '缩略图片地址，没有时不返回此字段',
+  `bmiddle_pic` varchar(100) DEFAULT NULL COMMENT '中等尺寸图片地址，没有时不返回此字段',
+  `original_pic` varchar(150) DEFAULT NULL COMMENT '原始图片地址，没有时不返回此字段',
+  `user_id` varchar(20) DEFAULT NULL COMMENT '关联的用户ID',
+  `retweeted_status` varchar(255) DEFAULT NULL COMMENT '被转发的原微博信息字段，应该也是一个微博对象，暂且保留',
+  `reposts_count` int DEFAULT NULL COMMENT '转发数',
+  `comments_count` int DEFAULT NULL COMMENT '评论数',
+  `attiudes_count` int DEFAULT NULL COMMENT '表态数',
+  `pic_ids` varchar(20) DEFAULT NULL COMMENT '微博配图ID。多图时返回多图ID，用来拼接图片url。用返回字段thumbnail_pic的地址配上该返回字段的图片ID，即可得到多个图片url。',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- `emo-analyst`.t_weibo_content definition
+
+CREATE TABLE `t_weibo_content` (
+  `wb_id` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '微博ID',
+  `user_id` varchar(20) DEFAULT NULL,
+  `text` varchar(255) DEFAULT NULL COMMENT '微博正文',
+  `create_time` datetime DEFAULT NULL COMMENT '记录创建时间',
+  `post_time` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '发布时间',
+  `tokenize_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '分词后结果',
+  `status` varchar(100) DEFAULT NULL COMMENT '处理状态 0未分词 1已分词',
+  PRIMARY KEY (`wb_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+CREATE DEFINER=`emo-analyst`@`` PROCEDURE `emo-analyst`.`filter_stopwords`()
+BEGIN
+    -- 先声明所有的变量
+    DECLARE input_string TEXT;
+    DECLARE result_string TEXT;
+    DECLARE pos INT;
+    DECLARE len INT;
+    DECLARE current_word VARCHAR(255);
+    DECLARE delimiter CHAR(1) DEFAULT ',';
+    DECLARE done INT DEFAULT FALSE;
+
+    -- 然后声明游标和处理程序
+    DECLARE cur CURSOR FOR SELECT tokenize_text FROM t_weibo_content where status = 0;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    -- 打开游标
+    OPEN cur;
+
+    read_loop: LOOP
+        FETCH cur INTO input_string;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        -- 初始化变量
+        SET result_string = '';
+        SET len = LENGTH(input_string);
+        SET pos = 1;
+
+        -- 处理 input_string 以过滤停用词
+        WHILE pos <= len DO
+            SET current_word = SUBSTRING_INDEX(SUBSTRING_INDEX(input_string, delimiter, pos), delimiter, -1);
+            
+            IF current_word != '' AND (SELECT COUNT(*) FROM t_stopword_v2 WHERE word = current_word) = 0 THEN
+                IF result_string != '' THEN
+                    SET result_string = CONCAT(result_string, delimiter);
+                END IF;
+                SET result_string = CONCAT(result_string, current_word);
+            END IF;
+            
+            SET pos = pos + 1;
+        END WHILE;
+
+        update t_weibo_content set tokenize_text = result_string,status = 1 where tokenize_text = input_string and status = 0;
+    END LOOP;
+
+    -- 关闭游标
+    CLOSE cur;
+end

@@ -4,4 +4,7 @@
     <select id="queryStopWord" parameterType="com.emoOpner.po.StopWord" resultType="int">
         select count(1) from t_stopword_v2 where word = #{word}
     </select>
+    <select id="doStopWord"  useCache="false" statementType="CALLABLE" resultType="java.util.Map">
+        {call filter_stopwords()}
+    </select>
 </mapper>
